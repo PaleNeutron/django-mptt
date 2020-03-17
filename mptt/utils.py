@@ -267,12 +267,15 @@ def get_cached_trees(queryset):
                 # Cache the parent on the current node, and attach the current
                 # node to the parent's list of children
                 _parent = current_path[-1]
-                setattr(obj, parent_attr, _parent)
-                _parent._cached_children.append(obj)
+                if _parent in obj.get_ancestors():
+                    setattr(obj, parent_attr, _parent)
+                    _parent._cached_children.append(obj)
 
-                if root_level == 0:
-                    # get_ancestors() can use .parent.parent.parent...
-                    setattr(obj, '_mptt_use_cached_ancestors', True)
+                    if root_level == 0:
+                        # get_ancestors() can use .parent.parent.parent...
+                        setattr(obj, '_mptt_use_cached_ancestors', True)
+                else:
+                    top_nodes.append(obj)
 
             # Add the current node to end of the current path - the last node
             # in the current path is the parent for the next iteration, unless
